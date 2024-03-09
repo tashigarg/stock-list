@@ -1,46 +1,58 @@
-# Getting Started with Create React App
+## Stock List Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This page fetches and let user review the stock watch list and perform basic operation of deleting the stock entry from it.
+Provide basic support on filtering on tag at server side.
+
+## Install
+
+`npm install` \
+Needed for testing in development environment. It also ensures json-server is installed and available for use. 
+
+## Usage
+### `cd <project_root>`
+### `npx json-server  data/db.json`
+json server should start at PORT 3000
+
+
+### Production environment
+
+`cd dist`
+
+Open index.html
+
+
+### Development environment
+ `cd <project_root>`\
+`npm start`
+ Runs the app in the development mode.\
+ Open [http://localhost:8080](http://localhost:8080) to view it in the browser.
+
+
 
 ## Available Scripts
 
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
+1. Builds the app for production to the `dist` folder.\
 It correctly bundles React in production mode and optimizes the build for the best performance.
+The build is minified and the filenames include the hashes.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### `npm start`
+2. In the project directory, you can run:\
+Runs the app in the development mode.\
+Open [http://localhost:8080](http://localhost:8080) to view it in the browser.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Project Libraries
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+[AntD](https://ant.design/) library was used as presentation layer on this React + Typescript based project. \
+[JSON-Server](https://www.npmjs.com/package/json-server) was used to build the mock backend server
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Limitation
+The Stock list page handles fetch of list. On top of it, it also has support of filtering on tag that server side. This can further be enhanced to support server side pagination and sorting.
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Assumption
+Port 3000 is free and kept for json-server as it is currently hardcoded. The code can also further enhanced to read the port from a file that contains the json server port in case default 3000 port is not available.

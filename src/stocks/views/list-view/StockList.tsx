@@ -36,6 +36,8 @@ interface IStockListState {
     selectedTag?: string;
     /** Selected Stock **/
     selectedStockId?: string | null;
+    /** Current Page Number **/
+    currentPage?: number;
 
 }
 
@@ -46,7 +48,8 @@ export default class StockList extends React.Component<IStockListProps, IStockLi
         this.state = {
             loading: true,
             initializing: true,
-            selectedTag: ALL_KEY
+            selectedTag: ALL_KEY,
+            currentPage: 1
         };
     }
 
@@ -70,8 +73,11 @@ export default class StockList extends React.Component<IStockListProps, IStockLi
                     dataSource={this.state.data}
                     rowKey={'id'}
                     pagination={{
-                        defaultPageSize: MAX_PAGE_SIZE
-                    }}
+                        current: this.state?.currentPage || 1,
+                        defaultPageSize: MAX_PAGE_SIZE,
+                        onChange: (page)=> {
+                            this.setState({currentPage: page});
+                        }}}
                 />
             </div>
         );
@@ -88,7 +94,7 @@ export default class StockList extends React.Component<IStockListProps, IStockLi
         let stateUpdates: IStockListState = {
             data,
             loading: false,
-            initializing: false,
+            initializing: false
         }
 
         // If the selected stock is not found in new list, let the parent know and update set state too
@@ -215,7 +221,8 @@ export default class StockList extends React.Component<IStockListProps, IStockLi
      */
     private handleTagChange(selectedTag: string): void {
         this.setState({
-            selectedTag
+            selectedTag,
+            currentPage: 1
         }, () => {
             void this.fetchStocks();
         });
