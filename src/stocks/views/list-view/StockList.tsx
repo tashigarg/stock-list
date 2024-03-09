@@ -1,31 +1,42 @@
 import React from 'react';
+import './StockList.css';
+
 import {
     Button,
     notification,
     Popconfirm, Select,
     Space,
     Table,
-    TableColumnsType,
-    Tag
+    TableColumnsType
 } from 'antd';
-import {StockType} from '../../StockTypes';
-import {StockAPI} from '../../apis/StockAPI';
-import ReloadIcon from '../../../images/reload.svg';
-import './StockList.css';
-import {ALL_KEY} from "../StockConstants";
 
+import { ReloadOutlined } from '@ant-design/icons';
+
+import { StockType } from '../../StockTypes';
+import { StockAPI } from '../../apis/StockAPI';
+import { ALL_KEY, MAX_PAGE_SIZE } from '../StockConstants';
 
 interface IStockListProps {
-    onStockSelection: (selectedStock: string) => void;
+    /** Callback on Stock Selection **/
+    onStockSelection: (selectedStock: string | null) => void;
+    /** Callback on Stock deletion **/
     onDelete: (selectedStock: string) => void;
 }
 
 interface IStockListState {
-    loading: boolean;
-    selectedTag?: string;
+    /** Initial State till component is loaded **/
     initializing: boolean;
+    /** When the list is refreshed **/
+    loading: boolean;
+    /** List Data **/
     data?: StockType[];
+    /** List of Tags to be displayed **/
     availableTags?: string[];
+    /** Selected Tag **/
+    selectedTag?: string;
+    /** Selected Stock **/
+    selectedStockId?: string | null;
+
 }
 
 export default class StockList extends React.Component<IStockListProps, IStockListState> {
@@ -34,11 +45,22 @@ export default class StockList extends React.Component<IStockListProps, IStockLi
         super(props);
         this.state = {
             loading: true,
-            initializing: true
+            initializing: true,
+            selectedTag: ALL_KEY
         };
     }
 
-    public render() {
+    /**
+     * When the component is mounted, fetch the list of stocks
+     */
+    public async componentDidMount(): Promise<void> {
+        await this.fetchStocks();
+    }
+
+    /**
+     * Render the list component
+     */
+    public render(): React.ReactNode {
         return (
             <div>
                 {this.getTableHeader()}
@@ -48,29 +70,58 @@ export default class StockList extends React.Component<IStockListProps, IStockLi
                     dataSource={this.state.data}
                     rowKey={'id'}
                     pagination={{
-                        pageSize: 5
+                        defaultPageSize: MAX_PAGE_SIZE
                     }}
                 />
             </div>
         );
     }
 
-    public async componentDidMount() {
-        await this.fetchStocks();
-    }
+    /**
+     * Fetch the list of stock to be displayed on list
+     * @private
+     */
+    private async fetchStocks(): Promise<void> {
+        const data: StockType[] = await StockAPI.fetchStocks(this.state?.selectedTag);
+        const selectedStock: StockType[] = data.filter(stock => stock.id === this.state?.selectedStockId);
 
-
-    private async fetchStocks() {
-        const {data, tags} = await StockAPI.fetchStocks(this.state?.selectedTag);
-        this.setState({
+        let stateUpdates: IStockListState = {
             data,
-            availableTags: tags,
             loading: false,
-            initializing: false
-        });
+            initializing: false,
+        }
+
+        // If the selected stock is not found in new list, let the parent know and update set state too
+        if (selectedStock.length === 0) {
+            this.props.onStockSelection(null);
+            stateUpdates = {
+                ...stateUpdates,
+                selectedStockId: null
+            };
+        }
+
+        // Update the tags only when user select All again or nothing is selected initially
+        if (!this.state || this.state.selectedTag === ALL_KEY) {
+            const tagSet = new Set<string>();
+            data.forEach(stock => {
+                stock.tag && tagSet.add(stock.tag);
+            });
+
+            stateUpdates = {
+                ...stateUpdates,
+                availableTags: Array.from(tagSet),
+            };
+        }
+
+        // update state
+        this.setState(stateUpdates);
     }
 
-    private getColumns() {
+    /**
+     * Return the list of columns
+     * @private
+     */
+    private getColumns(): TableColumnsType<StockType> {
         const columns: TableColumnsType<StockType> = [
             {
                 title: 'Symbol',
@@ -78,7 +129,12 @@ export default class StockList extends React.Component<IStockListProps, IStockLi
                 key: 'symbol',
                 render: (text, stock) =>
                     <a
-                        onClick={() => this.props.onStockSelection(stock.id)}
+                        onClick={() => {
+                            // handle click action on the stock symbol
+                            this.setState({selectedStockId: stock.id}, () => {
+                                this.props.onStockSelection(stock.id);
+                            });
+                        }}
                     >{text}</a>,
             },
             {
@@ -94,6 +150,7 @@ export default class StockList extends React.Component<IStockListProps, IStockLi
             {
                 title: 'Action',
                 key: 'action',
+                className: 'stock-action',
                 render: (_, record) => (
                     <Popconfirm
                         title='Delete stock'
@@ -104,9 +161,7 @@ export default class StockList extends React.Component<IStockListProps, IStockLi
                         okText='Yes'
                         cancelText='No'
                     >
-                        <Space size='middle' key={record.symbol} className={'stock-action'}>
-                            <Button type={'link'}>X</Button>
-                        </Space>
+                        <Button type={'link'}>X</Button>
                     </Popconfirm>
                 ),
             },
@@ -115,38 +170,64 @@ export default class StockList extends React.Component<IStockListProps, IStockLi
         return columns;
     }
 
-    private getTableHeader() {
+    /**
+     * Return Table Header
+     * @private
+     */
+    private getTableHeader(): React.ReactNode {
         return <div className={'stock-list-header'}>
-            <img src={ReloadIcon}  onClick={this.fetchStocks.bind(this)}/>
             {this.getTagsSelection()}
+            <ReloadOutlined onClick={this.fetchStocks.bind(this)}/>
         </div>
     }
 
-    private getTagsSelection() {
-        if (!this.state) {
+    /**
+     * Return tag selection
+     * @private
+     */
+    private getTagsSelection(): React.ReactNode {
+        if (!this.state || this.state.initializing) {
             return <></>;
         }
 
+        // Create option list and add All Key
         const options = (this.state.availableTags || []).map(tag => {
             return {value: tag, label: tag}
         });
-        options.unshift({value: '$$all$$', label: 'All'})
+        options.unshift({value: ALL_KEY, label: 'All'});
 
-        return <Select
-            defaultValue={ALL_KEY}
-            disabled={this.state.loading}
-            popupMatchSelectWidth={false}
-            onChange={this.handleTagChange.bind(this)}
-            options={options}
-        />
+        return (<div>
+            <span className={'stock-list-header-tag'}>Tag:</span>
+            <Select
+                className={'stock-list-header-select'}
+                defaultValue={ALL_KEY}
+                disabled={this.state.loading}
+                popupMatchSelectWidth={false}
+                onChange={this.handleTagChange.bind(this)}
+                options={options}
+            /></div>)
     }
 
-    private handleTagChange() {
-
+    /**
+     * Handle tag selection change
+     * @param selectedTag
+     * @private
+     */
+    private handleTagChange(selectedTag: string): void {
+        this.setState({
+            selectedTag
+        }, () => {
+            void this.fetchStocks();
+        });
     }
 
-    private async deleteListItem(record: StockType) {
-        StockAPI.deleteStock(record.id).then(isSuccess => {
+    /**
+     * Handle deleting of the stock
+     * @param record
+     * @private
+     */
+    private async deleteListItem(record: StockType): Promise<void> {
+        void  StockAPI.deleteStock(record.id).then(isSuccess => {
             if (isSuccess) {
                 notification.open({
                     message: `Delete Success`,
@@ -158,7 +239,7 @@ export default class StockList extends React.Component<IStockListProps, IStockLi
                     loading: true
                 }, () => {
                     this.fetchStocks();
-                    this.props.onDelete(record.symbol);
+                    this.props.onDelete(record.id);
                 })
             } else {
                 notification.open({

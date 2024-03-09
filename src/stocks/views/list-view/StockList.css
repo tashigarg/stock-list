@@ -1,22 +1,22 @@
-
 .stock-list-header {
     display: flex;
     float: right;
     padding: 10px;
 }
 
-.stock-action {
+.stock-list-header-tag {
+    font-weight: 600;
 }
 
-.stock-action:hover {
+.stock-list-header-select {
+    margin-right: 20px;
+}
+
+.stock-action:hover .ant-btn-link{
     visibility: visible;
 }
 
-.stock-list-header-img {
-    margin-right: 5px;
-}
-
-.stock-list-header-img:hover {
-    color: aqua;
+.stock-action .ant-btn-link{
+    visibility: hidden;
 }
 

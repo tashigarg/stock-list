@@ -1,17 +1,27 @@
 import React from 'react';
-import {StockType} from '../../StockTypes';
-import {Descriptions, DescriptionsProps, Spin} from 'antd';
 import './StockDetails.css';
-import {StockAPI} from '../../apis/StockAPI';
+
+import { Descriptions,
+    DescriptionsProps,
+    Spin
+} from 'antd';
+import { StockAPI } from '../../apis/StockAPI';
+import { StockType } from '../../StockTypes';
+
 
 interface IStockDetailsProps {
+    /** Stock Id which details to be shown **/
     stockId: string;
+    /** Callback on closing the component **/
     onClose: () => void;
 }
 
 interface IStockDetailsState {
-    stockId: string;
+    /** Initial state till the data is fetched **/
     initializing: boolean;
+    /** Stock Id state which details to be shown **/
+    stockId: string;
+    /** Stock details updated fetched from server **/
     stockData: StockType | null;
 }
 
@@ -26,7 +36,31 @@ export default class StockDetails extends React.Component<IStockDetailsProps, IS
         }
     }
 
-    public render() {
+    /**
+     * fetch the details when the component is loaded
+     */
+    public componentDidMount(): void {
+        void this.fetchStockInfo();
+    }
+
+    /**
+     * On update of props, fetch the element details and update the state
+     * @param prevProps
+     */
+    public componentDidUpdate(prevProps: any): void {
+        if (this.props.stockId !== prevProps.stockId) {
+            this.setState({
+                stockId: this.props.stockId
+            }, () => {
+                void this.fetchStockInfo();
+            });
+        }
+    }
+
+    /**
+     * Render details component
+     */
+    public render(): React.ReactNode {
         if (!this.state || this.state.initializing) {
             return <Spin/>;
         }
@@ -41,30 +75,25 @@ export default class StockDetails extends React.Component<IStockDetailsProps, IS
         </div>
     }
 
-    componentDidMount() {
-        this.fetchStockInfo();
-    }
 
-    componentDidUpdate(prevProps: any) {
-        if (this.props.stockId !== prevProps.stockId) {
-            this.setState({
-                stockId: this.props.stockId
-            }, () => {
-                this.fetchStockInfo();
-            });
-        }
-    }
-
-    private async fetchStockInfo() {
+    /**
+     * Fetch stock details
+     * @private
+     */
+    private async fetchStockInfo(): Promise<void> {
         await StockAPI.fetchStockInfo(this.state.stockId).then((stockData) => {
             this.setState({stockData, initializing: false})
         });
     }
 
-    private getItems() {
+    /**
+     * Return details list item
+     * @private
+     */
+    private getItems(): DescriptionsProps['items'] {
         const stock = this.state.stockData;
         if (!stock) {
-            return;
+            return [];
         }
         const items: DescriptionsProps['items'] = [
             {
