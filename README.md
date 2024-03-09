@@ -10,7 +10,7 @@ Needed for testing in development environment. It also ensures json-server is in
 
 ## Usage
 ### `cd <project_root>`
-### `npx json-server  data/db.json`
+### `npm run start-server`
 json server should start at PORT 3000
 
 
