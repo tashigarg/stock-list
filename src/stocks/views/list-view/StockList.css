@@ -1,0 +1,22 @@
+
+.stock-list-header {
+    display: flex;
+    float: right;
+    padding: 10px;
+}
+
+.stock-action {
+}
+
+.stock-action:hover {
+    visibility: visible;
+}
+
+.stock-list-header-img {
+    margin-right: 5px;
+}
+
+.stock-list-header-img:hover {
+    color: aqua;
+}
+
