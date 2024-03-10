@@ -1,5 +1,5 @@
 
-/** Defining the stock type for its Mdl **/
+/** Defining the stock type for its model **/
 export type StockType = {
     id: string;
     name: string;

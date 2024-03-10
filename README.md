@@ -1,27 +1,27 @@
 ## Stock List Application
 
-This page fetches and let user review the stock watch list and perform basic operation of deleting the stock entry from it.
-Provide basic support on filtering on tag at server side.
+This page fetches and let user review the stocks watch list and perform basic operation of deleting the stock entry from it.
+It also provides basic support on filtering on tag .
 
 ## Install
-
-`npm install` \
+### `cd <project_root>`
+###`npm install` 
 Needed for testing in development environment. It also ensures json-server is installed and available for use. 
 
 ## Usage
-### `cd <project_root>`
+
 ### `npm run start-server`
 json server should start at PORT 3000
 
 
-### Production environment
-
+### Production environment UI Launch
 `cd dist`
 
-Open index.html
+Launch index.html in browser \
+`open ./index.html`
 
 
-### Development environment
+### Development environment UI Launch
  `cd <project_root>`\
 `npm start`
  Runs the app in the development mode.\
@@ -39,10 +39,12 @@ It correctly bundles React in production mode and optimizes the build for the be
 The build is minified and the filenames include the hashes.
 
 ### `npm start`
-2. In the project directory, you can run:\
-Runs the app in the development mode.\
+2. In the project directory, you can run this script to run the app in the development mode.\
 Open [http://localhost:8080](http://localhost:8080) to view it in the browser.
 
+
+### `npm start-server`
+3. In the project directory, running this script with start the json server and serve the data from db.json inside data directory.
 
 
 ## Project Libraries

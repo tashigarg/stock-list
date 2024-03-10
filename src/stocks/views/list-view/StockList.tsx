@@ -4,8 +4,7 @@ import './StockList.css';
 import {
     Button,
     notification,
-    Popconfirm, Select,
-    Space,
+    Select,
     Table,
     TableColumnsType
 } from 'antd';
@@ -158,17 +157,9 @@ export default class StockList extends React.Component<IStockListProps, IStockLi
                 key: 'action',
                 className: 'stock-action',
                 render: (_, record) => (
-                    <Popconfirm
-                        title='Delete stock'
-                        description='Are you sure to delete this stock?'
-                        onConfirm={() => {
-                            void this.deleteListItem(record);
-                        }}
-                        okText='Yes'
-                        cancelText='No'
-                    >
-                        <Button type={'link'}>X</Button>
-                    </Popconfirm>
+                    <Button type={'link'} onClick={() => {
+                        void this.deleteListItem(record);
+                    }}>X</Button>
                 ),
             },
         ];
